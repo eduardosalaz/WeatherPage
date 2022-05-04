@@ -1,4 +1,24 @@
-<div *ngIf="options" style="height: 600px; width: 800px"
+<div *ngIf="options" style="  margin: auto;
+  width: 50%;
+  padding: 20em;"
      leaflet
-     [leafletOptions]="options">
+     [leafletOptions]="options"
+     [leafletZoom]="zoom"
+     (leafletZoomChange)="onZoomChange($event)"
+     [leafletCenter]="center"
+     (leafletCenterChange)="onCenterChange($event)"
+     (leafletClick)="handleEvent('click', $event)">
 </div>
+
+<h1>Estás en: {{ lat }}, {{ long }}</h1>
+
+
+<button (click)="submitCoords()">Enviar</button>
+
+<select class="form-control" name="Unidades" (change)="onChange($any($event.target).value)">
+  <option>Celsius</option>
+  <option>Fahrenheit</option>
+</select>
+
+
+<h1 *ngIf="temp">Hace {{temp}} grados {{ units}} en {{ciudad}}, {{pais}} con una humedad del {{humedad}}% y presion de {{presion}} milibares</h1>
