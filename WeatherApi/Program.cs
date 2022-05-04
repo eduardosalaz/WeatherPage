@@ -3,6 +3,20 @@ using System.Text.Json;
 using WeatherAPI;
 
 var builder = WebApplication.CreateBuilder(args);
+var apiCorsPolicy = "ApiCorsPolicy";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: apiCorsPolicy,
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:4200", "http://localhost:64477")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+            //.WithMethods("OPTIONS", "GET");
+        });
+});
 
 var weatherApiKey = builder.Configuration["OpenWeather:ApiKey"];
 
@@ -19,7 +33,7 @@ async Task<WeatherData?> GetCurrentWeather(string lat, string lon, string key, b
         units = "imperial";
     }
     httpClient.DefaultRequestHeaders.Accept.Clear();
-    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json;charset=utf-8"));
+    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
     httpClient.DefaultRequestHeaders.Add("User-Agent", "OpenWeather API caller");
     var streamTask = httpClient.GetStreamAsync(
         $"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={key}&units={units}");
@@ -79,5 +93,11 @@ app.MapGet("/weather_data/{lat}/{lon}/{metric}", async (string lat, string lon, 
 //app.MapGet("/geolocation/{cityName}/{countryCode?}", async (string cityName, string countryCode) => 
     // await GetCoordsFromCity(cityName, weatherApiKey, countryCode));
 
+void ConfigureServices(IServiceCollection services)
+{
+    services.AddCors(); // Make sure you call this previous to AddMvc
+}
+
+app.UseCors(apiCorsPolicy);
 app.Run();
 
